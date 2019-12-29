@@ -49,14 +49,12 @@ class ExportLine:
             if self.comments:
                 if self.is_comment_code_block():
                     ret.write(self.get_comment_code_block())
-                    ret.write('\n')
                 else:
                     ret.write("* ")
                     ret.write(" ".join(self.comments))
-                    ret.write("\n")
                     is_with_bullet_comment = True
-            else:
-                ret.write("\n")
+
+            ret.write("\n")
 
             return ret.getvalue(), is_with_bullet_comment
 
@@ -69,7 +67,9 @@ class ExportLine:
 
             if self.comments:
                 if self.is_comment_code_block():
-                    ret.write(self.get_comment_code_block(self.indent, 2))
+                    ret.write(
+                        self.get_comment_code_block(
+                            self.indent + indent_offset, 2))
                 else:
                     ret.write(
                         self.get_indent_string(self.indent + indent_offset +
@@ -83,8 +83,9 @@ class ExportLine:
     def is_comment_code_block(self):
         if not self.comments:
             return False
-        if re.match(r"^`+", self.comments[0]) and re.match(
-                r"`+$", self.comments[-1]):
+        if len(self.comments) > 1 and re.match(r"^`+",
+                                               self.comments[0]) and re.match(
+                                                   r"`+$", self.comments[-1]):
             return True
         else:
             return False
@@ -93,13 +94,20 @@ class ExportLine:
         ws = self.get_indent_string(indent) + " " * extra_ws
         with io.StringIO() as ret:
             ret.write(ws + "```\n")  # 1st line
-            ret.write(ws + re.sub(r"^`+", "", self.comments[0]))
-            ret.write("\n")  # 2nd line
-            ret.write(ws)
-            ret.write(("\n" + ws).join(self.comments[1:-1]))
-            ret.write("\n")  # middle lines
-            ret.write(ws + re.sub(r"`+$", "", self.comments[-1]))
-            ret.write("\n")  # 2nd last line
+            line2 = re.sub(r"^`+", "", self.comments[0])
+            if line2:
+                ret.write(ws + line2)
+                ret.write("\n")  # 2nd line
+
+            if len(self.comments) > 2:
+                ret.write(ws)
+                ret.write(("\n" + ws).join(self.comments[1:-1]))
+                ret.write("\n")  # middle lines
+
+            line_2last = re.sub(r"`+$", "", self.comments[-1])
+            if line_2last:
+                ret.write(ws + line_2last)
+                ret.write("\n")  # 2nd last line
             ret.write(ws + "```\n")  # last line
             return ret.getvalue()
 

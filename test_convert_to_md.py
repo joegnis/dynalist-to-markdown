@@ -24,6 +24,24 @@ Paragraph1
 Paragraph2
 
 """, 1, 1, 0),
+            ("""* Heading1
+    * Paragraph1
+        * item1
+* Heading2
+    * Paragraph2
+        * item2
+""", """## Heading1
+
+Paragraph1
+
+* item1
+
+## Heading2
+
+Paragraph2
+
+* item2
+""", 2, 0, 0)
         ]:
             with self.subTest(input=exported,
                               start_heading=start_hd,
@@ -63,7 +81,54 @@ Paragraph1
 
 Paragraph2
 * CommentP2
-""", 1, 1, 0)
+""", 1, 1, 0),
+            ("""* Heading1
+  ```some
+  code1
+  ```
+""", """# Heading1
+
+```
+some
+code1
+```
+
+""", 1, 1, 0),
+            ("""* Heading1
+    * Paragraph1
+      ```somecode1
+      ```
+""", """# Heading1
+
+Paragraph1
+```
+somecode1
+```
+
+""", 1, 0, 0),
+            ("""* Heading1
+  `onelinecode`
+""", """# Heading1
+
+`onelinecode`
+
+""", 1, 1, 0),
+            ("""* Heading1
+    * Paragraph1
+        * Item1
+          ```some
+          code
+          ```
+""", """# Heading1
+
+Paragraph1
+
+* Item1
+  ```
+  some
+  code
+  ```
+""", 1, 0, 0),
         ]:
             with self.subTest(input=exported,
                               start_heading=start_hd,
