@@ -5,6 +5,7 @@ import sys
 import argparse
 import itertools
 import io
+import enum
 
 
 class ExportLine:
@@ -23,26 +24,30 @@ class ExportLine:
         self.comments = comments
         self.indent = indent
 
-    def to_markdown_heading(self, heading_lvl):
+    def to_markdown_heading(self, heading_lvl, prepend_empty_line=True):
         with io.StringIO() as ret:
+            if prepend_empty_line:
+                ret.write("\n")
+
             for _ in range(heading_lvl):
                 ret.write("#")
             ret.write(' ' + self.line)
-            ret.write("\n\n")
+            ret.write("\n")
 
             if self.comments:
+                ret.write("\n")
                 if self.is_comment_code_block():
                     ret.write(self.get_comment_code_block())
                 else:
                     ret.write("\n".join(self.comments))
                     ret.write("\n")
-                ret.write("\n")
 
             return ret.getvalue()
 
     def to_markdown_paragraph(self):
         is_with_bullet_comment = False
         with io.StringIO() as ret:
+            ret.write("\n")
             ret.write(self.line)
             ret.write("\n")
 
@@ -52,9 +57,8 @@ class ExportLine:
                 else:
                     ret.write("* ")
                     ret.write(" ".join(self.comments))
+                    ret.write("\n")
                     is_with_bullet_comment = True
-
-            ret.write("\n")
 
             return ret.getvalue(), is_with_bullet_comment
 
@@ -171,35 +175,40 @@ def convert_to_md(iter_exported, start_heading, heading_depth):
                 ExportLine(strip_line(line), comments, count_indent(line)))
         line = next(iter_exported, None)
 
-    with io.StringIO() as converted:
-        is_prev_list = False
-        is_prev_para_with_cmnt = False
-        for exp_line in export_lines:
-            if exp_line.indent <= heading_depth:
-                if is_prev_list:
-                    converted.write("\n")
-                    is_prev_list = False
-                if is_prev_para_with_cmnt:
-                    converted.write("\n")
-                    is_prev_para_with_cmnt = False
+    class PrevItem(enum.Enum):
+        NOTHING = enum.auto()
+        HEADING = enum.auto()
+        LIST_ITEM = enum.auto()
+        PARAGRAPH = enum.auto()
+        PARAGRAPH_LIST_ITEM = enum.auto()
 
+    prev_item = PrevItem.NOTHING
+    with io.StringIO() as converted:
+        for i, exp_line in enumerate(export_lines):
+            if exp_line.indent <= heading_depth:
+                if i == 0:
+                    prepend_empty_line = False
+                else:
+                    prepend_empty_line = True
                 converted.write(
-                    exp_line.to_markdown_heading(start_heading +
-                                                 exp_line.indent))
+                    exp_line.to_markdown_heading(
+                        start_heading + exp_line.indent, prepend_empty_line))
+
+                prev_item = PrevItem.HEADING
             elif exp_line.indent == heading_depth + 1:
-                if is_prev_list:
-                    converted.write("\n")
-                    is_prev_list = False
-                if is_prev_para_with_cmnt:
-                    converted.write("\n")
-                    is_prev_para_with_cmnt = False
-                p, is_prev_para_with_cmnt = exp_line.to_markdown_paragraph()
+                p, prev_para_with_list_item = exp_line.to_markdown_paragraph()
                 converted.write(p)
+
+                if prev_para_with_list_item:
+                    prev_item = PrevItem.PARAGRAPH_LIST_ITEM
+                else:
+                    prev_item = PrevItem.PARAGRAPH
             else:
-                if is_prev_para_with_cmnt:
-                    is_prev_para_with_cmnt = False
+                if prev_item == PrevItem.PARAGRAPH:
+                    converted.write("\n")
                 converted.write(exp_line.to_list_item(-2 - heading_depth))
-                is_prev_list = True
+
+                prev_item = PrevItem.LIST_ITEM
         return 0, converted.getvalue()
 
 

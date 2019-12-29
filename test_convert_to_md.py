@@ -22,7 +22,6 @@ Paragraph1
 * item2
 
 Paragraph2
-
 """, 1, 1, 0),
             ("""* Heading1
     * Paragraph1
@@ -92,7 +91,6 @@ Paragraph2
 some
 code1
 ```
-
 """, 1, 1, 0),
             ("""* Heading1
     * Paragraph1
@@ -104,14 +102,12 @@ Paragraph1
 ```
 somecode1
 ```
-
 """, 1, 0, 0),
             ("""* Heading1
   `onelinecode`
 """, """# Heading1
 
 `onelinecode`
-
 """, 1, 1, 0),
             ("""* Heading1
     * Paragraph1
