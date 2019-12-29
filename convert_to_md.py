@@ -34,27 +34,31 @@ class ExportLine:
                 if self.is_comment_code_block():
                     ret.write(self.get_comment_code_block())
                 else:
-                    for line in self.comments:
-                        ret.write(line + "\n")
+                    ret.write("\n".join(self.comments))
                     ret.write("\n")
                 ret.write("\n")
 
             return ret.getvalue()
 
     def to_markdown_paragraph(self):
+        is_with_bullet_comment = False
         with io.StringIO() as ret:
             ret.write(self.line)
-            ret.write("\n\n")
+            ret.write("\n")
 
             if self.comments:
                 if self.is_comment_code_block():
                     ret.write(self.get_comment_code_block())
+                    ret.write('\n')
                 else:
-                    ret.write("\n".join(self.comments))
+                    ret.write("* ")
+                    ret.write(" ".join(self.comments))
                     ret.write("\n")
-                ret.write('\n')
+                    is_with_bullet_comment = True
+            else:
+                ret.write("\n")
 
-            return ret.getvalue()
+            return ret.getvalue(), is_with_bullet_comment
 
     def to_list_item(self, indent_offset=0):
         with io.StringIO() as ret:
@@ -161,11 +165,16 @@ def convert_to_md(iter_exported, start_heading, heading_depth):
 
     with io.StringIO() as converted:
         is_prev_list = False
+        is_prev_para_with_cmnt = False
         for exp_line in export_lines:
             if exp_line.indent <= heading_depth:
                 if is_prev_list:
                     converted.write("\n")
                     is_prev_list = False
+                if is_prev_para_with_cmnt:
+                    converted.write("\n")
+                    is_prev_para_with_cmnt = False
+
                 converted.write(
                     exp_line.to_markdown_heading(start_heading +
                                                  exp_line.indent))
@@ -173,8 +182,14 @@ def convert_to_md(iter_exported, start_heading, heading_depth):
                 if is_prev_list:
                     converted.write("\n")
                     is_prev_list = False
-                converted.write(exp_line.to_markdown_paragraph())
+                if is_prev_para_with_cmnt:
+                    converted.write("\n")
+                    is_prev_para_with_cmnt = False
+                p, is_prev_para_with_cmnt = exp_line.to_markdown_paragraph()
+                converted.write(p)
             else:
+                if is_prev_para_with_cmnt:
+                    is_prev_para_with_cmnt = False
                 converted.write(exp_line.to_list_item(-2 - heading_depth))
                 is_prev_list = True
         return 0, converted.getvalue()
