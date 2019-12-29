@@ -125,6 +125,23 @@ Paragraph1
   code
   ```
 """, 1, 0, 0),
+            ("""* Heading1
+    * Paragraph1
+        * Item1
+          ```some
+          more
+          code```
+""", """# Heading1
+
+Paragraph1
+
+* Item1
+  ```
+  some
+  more
+  code
+  ```
+""", 1, 0, 0),
         ]:
             with self.subTest(input=exported,
                               start_heading=start_hd,

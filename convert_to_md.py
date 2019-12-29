@@ -88,7 +88,7 @@ class ExportLine:
         if not self.comments:
             return False
         if len(self.comments) > 1 and re.match(r"^`+",
-                                               self.comments[0]) and re.match(
+                                               self.comments[0]) and re.search(
                                                    r"`+$", self.comments[-1]):
             return True
         else:
