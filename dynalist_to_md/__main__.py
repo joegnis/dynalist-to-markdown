@@ -27,7 +27,7 @@ def main(argv=None):
         metavar="DEPTH",
         help="Depth of sub-headings, e.g. 1 means at most heading 2 (##)")
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv[1:])
     ret_val, ret_msg = convert_to_md(iter(args.content.split('\n')),
                                      args.start_heading, args.heading_depth)
     if ret_val != 0:
