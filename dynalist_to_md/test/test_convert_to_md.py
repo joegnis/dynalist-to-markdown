@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import unittest
-from convert_to_md import convert_to_md
+from dynalist_to_md.convert_to_md import convert_to_md
 
 
 class ConvertTestCase(unittest.TestCase):

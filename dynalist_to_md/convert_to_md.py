@@ -219,7 +219,7 @@ if __name__ == "__main__":
         lines of first level of indentation will be converted to heading 1,
         and lines of 2nd level will be converted to heading 2
         """)
-    parser.add_argument('content', metavar='EXPORTED', narg='?')
+    parser.add_argument('content', metavar='EXPORTED', nargs='?')
     parser.add_argument(
         '--start-heading',
         type=int,
