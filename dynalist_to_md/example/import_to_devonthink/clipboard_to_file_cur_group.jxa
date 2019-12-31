@@ -1,0 +1,25 @@
+/*
+ * Get exported Dynalist text from clipboard, convert it to Markdown
+ * format, save it to a new Markdown record in currently opened group in
+ * DEVONthink 3 app.
+ *
+ * Headings start from level 1, with max depth 1.
+ * First heading is used as record name.
+ */
+
+(function() {
+    'use strict';
+
+    var Devon = Application("com.devon-technologies.think3");
+
+    var app = Application.currentApplication();
+    app.includeStandardAdditions = true;
+    var md = app.doShellScript('/usr/local/bin/python3 -m dynalist_to_md \
+        --start-heading 1 --heading-depth 1 "$(pbpaste)"');
+    var title = md.match(/^# (.*)/)[1];
+
+    Devon.createRecordWith(
+        {name: title, type: 'markdown', 'plain text': md},
+        {in: Devon.currentGroup}
+    );
+})();
