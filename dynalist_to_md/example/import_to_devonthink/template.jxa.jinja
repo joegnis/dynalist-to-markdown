@@ -26,9 +26,13 @@ function pasteToClipboard(content) {
 
     var clipboard = app.theClipboard().replace(/\r/g, '\n');
     var md = app.doShellScript('/usr/local/bin/python3 -m dynalist_to_md \
-        --start-heading 1 --heading-depth 1 "' + clipboard + '"')
+        --start-heading {{ start_heading }} --heading-depth {{ heading_depth }} "' + clipboard + '"')
         .replace(/\r/g, '\n');
-    var title = md.match(/^# (.*)/)[1];
 
+    {% if dest is eq "new_record_cur_group" %}
+    var title = md.match(/^#+ (.*)/)[1];
     addToNewRecord(title, md, Devon.currentGroup);
+    {% elif dest is eq "clipboard" %}
+    pasteToClipboard(md);
+    {% endif %}
 })();
