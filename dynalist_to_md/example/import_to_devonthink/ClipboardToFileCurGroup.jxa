@@ -6,20 +6,26 @@
  * Headings start from level 1, with max depth 1.
  * First heading is used as record name.
  */
+var Devon = Application("com.devon-technologies.think3");
+
+function addToNewRecord(name, content, group) {
+    Devon.createRecordWith(
+        {name: name, type: 'markdown', 'plain text': content},
+        {in: group}
+    );
+}
 
 (function() {
     'use strict';
 
-    var Devon = Application("com.devon-technologies.think3");
-
     var app = Application.currentApplication();
     app.includeStandardAdditions = true;
+
+    var clipboard = app.theClipboard().replace(/\r/g, '\n');
     var md = app.doShellScript('/usr/local/bin/python3 -m dynalist_to_md \
-        --start-heading 1 --heading-depth 1 "$(pbpaste)"');
+        --start-heading 1 --heading-depth 1 "' + clipboard + '"')
+        .replace(/\r/g, '\n');
     var title = md.match(/^# (.*)/)[1];
 
-    Devon.createRecordWith(
-        {name: title, type: 'markdown', 'plain text': md},
-        {in: Devon.currentGroup}
-    );
+    addToNewRecord(title, md, Devon.currentGroup);
 })();
