@@ -6,6 +6,8 @@
  * Headings start from level 1, with max depth 1.
  * First heading is used as record name.
  */
+var app = Application.currentApplication();
+app.includeStandardAdditions = true;
 var Devon = Application("com.devon-technologies.think3");
 
 function addToNewRecord(name, content, group) {
@@ -15,11 +17,12 @@ function addToNewRecord(name, content, group) {
     );
 }
 
+function pasteToClipboard(content) {
+    app.setTheClipboardTo(content);
+}
+
 (function() {
     'use strict';
-
-    var app = Application.currentApplication();
-    app.includeStandardAdditions = true;
 
     var clipboard = app.theClipboard().replace(/\r/g, '\n');
     var md = app.doShellScript('/usr/local/bin/python3 -m dynalist_to_md \
