@@ -33,7 +33,7 @@ install_toolbar:  # install one script to toolbar at a time
 	install -d $(install_path_toolbar); \
 	install -m 644 "$$scpt_path" $(install_path_toolbar)
 
-%:
+%:  # do nothing
 	@:
 
 $(prefix):
@@ -58,6 +58,6 @@ uninstall_toolbar:
 clean:
 	@$(RM) -r $(build_dir)
 
-.PHONY: clean all install
+.PHONY: clean all install uninstall_menu uninstall_toolbar
 
 MKDIR_P := mkdir -p
