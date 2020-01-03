@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dynalist-to-md-joegnis",
-    version="0.0.1",
+    version="0.1.dev1",
     author="joegnis",
     author_email="joegnis@pm.me",
     description="A tool that converts text exported from" +
