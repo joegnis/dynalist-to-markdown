@@ -8,8 +8,8 @@ setuptools.setup(
     version="0.0.1",
     author="joegnis",
     author_email="joegnis@pm.me",
-    description=
-    "A tool that converts text exported from Dynalist into Markdown text",
+    description="A tool that converts text exported from" +
+    "Dynalist into Markdown text",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/joegnis/dynalist-to-markdown",
